@@ -8,30 +8,75 @@ import InputLabel from "@material-ui/core/InputLabel";
 import { ITableAndBlock } from "./CryptoTable";
 import { ICoinInfo } from "../App";
 
-interface ICurrenciesChange {
-  value1: string,
-  value2: string
+enum ActionType {
+  SET_VALUE_TEXTAREA = "SET_VALUE_TEXTAREA",
+  SET_VALUE_SELECT = "SET_VALUE_SELECT",
 }
 
-function CurrencyBlock({ classes, coinInfo }: ITableAndBlock) {
-  
+interface ICurrenciesChange {
+  value1: string;
+  value2: string;
+  selectedOutCurrency: string;
+  selectedInCurrency: string;
+}
 
-  const [firstCurrency, setFirstCurrency] = React.useState<string>("BTC");
-  const [secondCurrency, setSecondCurrency] = React.useState<string>("USD");
-  const [firstInput, setFirstInput] = React.useState<string>("");
-  const [secondInput, setSecondInput] = React.useState<string>("");
+interface IAction {
+  type: ActionType;
+  payload: {
+    value: string;
+    nameToChange?: string;
+    name: string;
+  };
+}
 
-  const onHandleFirstChange = (e: any) => {
-    setFirstCurrency(e.target.value);
+const initialState: ICurrenciesChange = {
+  value1: "",
+  value2: "",
+  selectedOutCurrency: "BTC",
+  selectedInCurrency: "USD",
+};
+
+const reducer: React.Reducer<ICurrenciesChange, IAction> = (state, action) => {
+  switch (action.type) {
+    case ActionType.SET_VALUE_TEXTAREA:
+      return {
+        ...state,
+        [action.payload.name]: action.payload.value,
+        [action.payload.name === "value1" ? "value2" : "value1"]: action.payload
+          .value,
+      };
+    case ActionType.SET_VALUE_SELECT:
+      return {
+        ...state,
+        [action.payload.name]: action.payload.value,
+      };
+  }
+};
+
+const CurrencyBlock: React.FC<ITableAndBlock> = ({ classes, coinInfo }) => {
+  const [state, dispatch] = React.useReducer<
+    React.Reducer<ICurrenciesChange, IAction>
+  >(reducer, initialState);
+  console.log(state);
+
+  const onUpdateField = (name: string, value: string) => {
+    dispatch({
+      type: ActionType.SET_VALUE_TEXTAREA,
+      payload: {
+        name,
+        value,
+      },
+    });
   };
-  const onHandleSecondChange = (e: any) => {
-    setSecondCurrency(e.target.value);
-  };
-  const onHandleFirstInput = (e: any) => {
-    setFirstInput(e.target.value);
-  };
-  const onHandleSecondInput = (e: any) => {
-    setSecondInput(e.target.value);
+
+  const onUpdateSelect = (name: string, value: string) => {
+    dispatch({
+      type: ActionType.SET_VALUE_SELECT,
+      payload: {
+        name,
+        value,
+      },
+    });
   };
   return (
     <Paper className={classes.paper}>
@@ -40,15 +85,20 @@ function CurrencyBlock({ classes, coinInfo }: ITableAndBlock) {
           <TextField
             type="number"
             label="Сумма"
-            value={firstInput}
-            onChange={onHandleFirstInput}
+            value={state.value1}
+            onChange={(e: any) => onUpdateField("value1", e.target.value)}
           />
         </FormControl>
         <FormControl className={classes.currencyType}>
           <InputLabel shrink id="demo-simple-select-placeholder-label-label">
             Валюта
           </InputLabel>
-          <Select value={firstCurrency} onChange={onHandleFirstChange}>
+          <Select
+            value={state.selectedOutCurrency}
+            onChange={(e: any) =>
+              onUpdateSelect("selectedOutCurrency", e.target.value)
+            }
+          >
             {coinInfo &&
               coinInfo.map((coin: ICoinInfo) => (
                 <MenuItem key={coin.price} value={coin.name}>
@@ -63,15 +113,20 @@ function CurrencyBlock({ classes, coinInfo }: ITableAndBlock) {
           <TextField
             type="number"
             label="Сумма"
-            value={secondInput}
-            onChange={onHandleSecondInput}
+            value={state.value2}
+            onChange={(e: any) => onUpdateField("value2", e.target.value)}
           />
         </FormControl>
         <FormControl className={classes.currencyType}>
           <InputLabel shrink id="demo-simple-select-placeholder-label-label">
             Валюта
           </InputLabel>
-          <Select value={secondCurrency} onChange={onHandleSecondChange}>
+          <Select
+            value={state.selectedInCurrency}
+            onChange={(e: any) =>
+              onUpdateSelect("selectedInCurrency", e.target.value)
+            }
+          >
             <MenuItem value="USD">USD</MenuItem>
             {coinInfo &&
               coinInfo.map((coin: ICoinInfo) => (
@@ -84,6 +139,6 @@ function CurrencyBlock({ classes, coinInfo }: ITableAndBlock) {
       </div>
     </Paper>
   );
-}
+};
 
 export default CurrencyBlock;
