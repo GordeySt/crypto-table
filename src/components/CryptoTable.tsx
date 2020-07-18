@@ -7,7 +7,14 @@ import TableHead from "@material-ui/core/TableHead";
 import TableRow from "@material-ui/core/TableRow";
 import Paper from "@material-ui/core/Paper";
 
-function CryptoTable({ classes, coinInfo }: any) {
+import { ICoinInfo } from "../App";
+
+export interface ITableAndBlock {
+  classes: any;
+  coinInfo: ICoinInfo[];
+}
+
+function CryptoTable({ classes, coinInfo }: ITableAndBlock) {
   return (
     <TableContainer component={Paper}>
       <Table className={classes.table} aria-label="simple table">
@@ -21,15 +28,27 @@ function CryptoTable({ classes, coinInfo }: any) {
           </TableRow>
         </TableHead>
         <TableBody>
-          <TableRow className={classes.rowCurrency} hover>
-            <TableCell>
-              <img className={classes.currencyIcon} alt="Coin icon" />
-            </TableCell>
-            <TableCell align="left"></TableCell>
-            <TableCell align="left"></TableCell>
-            <TableCell align="left"></TableCell>
-            <TableCell align="left"></TableCell>
-          </TableRow>
+          {!coinInfo.length
+            ? "Загрузка..."
+            : coinInfo.map((coin: ICoinInfo) => (
+                <TableRow
+                  key={coin.price}
+                  className={classes.rowCurrency}
+                  hover
+                >
+                  <TableCell>
+                    <img
+                      src={coin.imageUrl}
+                      className={classes.currencyIcon}
+                      alt="Coin icon"
+                    />
+                  </TableCell>
+                  <TableCell align="left">{coin.name}</TableCell>
+                  <TableCell align="left">{coin.fullName}</TableCell>
+                  <TableCell align="left">{coin.price} $</TableCell>
+                  <TableCell align="left">{coin.volume24hour} $</TableCell>
+                </TableRow>
+              ))}
         </TableBody>
       </Table>
     </TableContainer>
