@@ -1,8 +1,11 @@
 import React from "react";
-import CryptoTable from "./components/CryptoTable";
-import CurrencyBlock from "./components/CurrencyBlock";
+import CryptoTable from "./components/CryptoTable/CryptoTable";
+import CurrencyBlock from "./components/CurrencyBlock/CurrencyBlock";
 import Container from "@material-ui/core/Container";
 import Grid from "@material-ui/core/Grid";
+import { useDispatch, useSelector } from "react-redux";
+import { setCoins } from "./redux/actions/currencyInfo";
+import { IState } from "./redux/types";
 
 import useStyles from "./styles";
 
@@ -15,8 +18,12 @@ export interface ICoinInfo {
 }
 
 function App() {
+  const { coinInfo, cryptoName } = useSelector((state: IState) => ({
+    coinInfo: state.coins,
+    cryptoName: state.currencyName,
+  }));
   const classes: any = useStyles();
-  const [coinInfo, setCoinInfo] = React.useState<ICoinInfo[]>([]);
+  const dispatch = useDispatch();
   React.useEffect(() => {
     fetch(
       "https://min-api.cryptocompare.com/data/top/totalvolfull?limit=10&tsym=USD"
@@ -33,9 +40,9 @@ function App() {
           };
           return obj;
         });
-        setCoinInfo(coins);
+        dispatch(setCoins(coins));
       });
-  }, []);
+  }, [dispatch]);
   return (
     <Container className={classes.root} maxWidth="lg">
       <Grid container spacing={3}>
@@ -43,7 +50,11 @@ function App() {
           <CryptoTable classes={classes} coinInfo={coinInfo} />
         </Grid>
         <Grid item xs={4}>
-          <CurrencyBlock classes={classes} coinInfo={coinInfo} />
+          <CurrencyBlock
+            classes={classes}
+            coinInfo={coinInfo}
+            cryptoName={cryptoName}
+          />
         </Grid>
       </Grid>
     </Container>
