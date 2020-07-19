@@ -6,15 +6,22 @@ import TableContainer from "@material-ui/core/TableContainer";
 import TableHead from "@material-ui/core/TableHead";
 import TableRow from "@material-ui/core/TableRow";
 import Paper from "@material-ui/core/Paper";
+import { useDispatch } from "react-redux";
+import { setCrypto } from "../redux/actions/currencyInfo";
 
 import { ICoinInfo } from "../App";
 
 export interface ITableAndBlock {
   classes: any;
   coinInfo: ICoinInfo[];
+  cryptoName?: string;
 }
 
 function CryptoTable({ classes, coinInfo }: ITableAndBlock) {
+  const dispatch = useDispatch();
+  const onClickHandle = (name: string) => {
+    dispatch(setCrypto(name));
+  };
   return (
     <TableContainer component={Paper}>
       <Table className={classes.table} aria-label="simple table">
@@ -35,6 +42,7 @@ function CryptoTable({ classes, coinInfo }: ITableAndBlock) {
                   key={coin.price}
                   className={classes.rowCurrency}
                   hover
+                  onClick={() => onClickHandle(coin.name)}
                 >
                   <TableCell>
                     <img

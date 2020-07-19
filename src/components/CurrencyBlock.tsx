@@ -10,54 +10,81 @@ import { ICoinInfo } from "../App";
 
 enum ActionType {
   SET_VALUE_TEXTAREA = "SET_VALUE_TEXTAREA",
-  SET_VALUE_SELECT = "SET_VALUE_SELECT",
+  SET_PRICES = "SET_PRICES",
 }
 
 interface ICurrenciesChange {
   value1: string;
   value2: string;
-  selectedOutCurrency: string;
-  selectedInCurrency: string;
+  outPrice: number;
+  inPrice: number;
 }
 
-interface IAction {
-  type: ActionType;
+interface ITextareaAction {
+  type: ActionType.SET_VALUE_TEXTAREA;
   payload: {
     value: string;
-    nameToChange?: string;
     name: string;
   };
 }
 
-const initialState: ICurrenciesChange = {
-  value1: "",
-  value2: "",
-  selectedOutCurrency: "BTC",
-  selectedInCurrency: "USD",
-};
+interface IPricesAction {
+  type: ActionType.SET_PRICES;
+  payload: {
+    inPrice: number;
+    outPrice: number;
+  };
+}
 
-const reducer: React.Reducer<ICurrenciesChange, IAction> = (state, action) => {
+type TAction = ITextareaAction | IPricesAction;
+
+const reducer: React.Reducer<ICurrenciesChange, TAction> = (state, action) => {
   switch (action.type) {
     case ActionType.SET_VALUE_TEXTAREA:
       return {
         ...state,
         [action.payload.name]: action.payload.value,
-        [action.payload.name === "value1" ? "value2" : "value1"]: action.payload
-          .value,
+        [action.payload.name === "value1" ? "value2" : "value1"]:
+          action.payload.name === "value1"
+            ? (Number(action.payload.value) * state.outPrice) / state.inPrice
+            : (Number(action.payload.value) * state.inPrice) / state.outPrice,
       };
-    case ActionType.SET_VALUE_SELECT:
+    case ActionType.SET_PRICES:
       return {
         ...state,
-        [action.payload.name]: action.payload.value,
+        outPrice: action.payload.outPrice,
+        inPrice: action.payload.inPrice,
       };
   }
 };
 
-const CurrencyBlock: React.FC<ITableAndBlock> = ({ classes, coinInfo }) => {
+const CurrencyBlock: React.FC<ITableAndBlock> = ({
+  classes,
+  coinInfo,
+  cryptoName,
+}) => {
+  const [selectedOutCurrency, setSelectedOutCurrency] = React.useState<string>(
+    "BTC"
+  );
+  const [selectedInCurrency, setSelectedInCurrency] = React.useState<string>(
+    "BTC"
+  );
+
+  const outPrice =
+    coinInfo.find((obj: ICoinInfo) => obj.name === selectedOutCurrency)
+      ?.price || 0;
+  const inPrice =
+    coinInfo.find((obj: ICoinInfo) => obj.name === selectedInCurrency)?.price ||
+    0;
+
   const [state, dispatch] = React.useReducer<
-    React.Reducer<ICurrenciesChange, IAction>
-  >(reducer, initialState);
-  console.log(state);
+    React.Reducer<ICurrenciesChange, TAction>
+  >(reducer, {
+    value1: "",
+    value2: "",
+    outPrice: coinInfo.find((obj: ICoinInfo) => obj.name === "BTC")?.price || 0,
+    inPrice: coinInfo.find((obj: ICoinInfo) => obj.name === "BTC")?.price || 0,
+  });
 
   const onUpdateField = (name: string, value: string) => {
     dispatch({
@@ -69,14 +96,21 @@ const CurrencyBlock: React.FC<ITableAndBlock> = ({ classes, coinInfo }) => {
     });
   };
 
-  const onUpdateSelect = (name: string, value: string) => {
+  React.useEffect(() => {
     dispatch({
-      type: ActionType.SET_VALUE_SELECT,
+      type: ActionType.SET_PRICES,
       payload: {
-        name,
-        value,
+        inPrice: inPrice,
+        outPrice: outPrice,
       },
     });
+  }, [inPrice, outPrice]);
+
+  const onUpdateOutSelect = (value: string) => {
+    setSelectedOutCurrency(value);
+  };
+  const onUpdateInSelect = (value: string) => {
+    setSelectedInCurrency(value);
   };
   return (
     <Paper className={classes.paper}>
@@ -94,10 +128,8 @@ const CurrencyBlock: React.FC<ITableAndBlock> = ({ classes, coinInfo }) => {
             Валюта
           </InputLabel>
           <Select
-            value={state.selectedOutCurrency}
-            onChange={(e: any) =>
-              onUpdateSelect("selectedOutCurrency", e.target.value)
-            }
+            value={cryptoName || selectedOutCurrency}
+            onChange={(e: any) => onUpdateOutSelect(e.target.value)}
           >
             {coinInfo &&
               coinInfo.map((coin: ICoinInfo) => (
@@ -122,12 +154,9 @@ const CurrencyBlock: React.FC<ITableAndBlock> = ({ classes, coinInfo }) => {
             Валюта
           </InputLabel>
           <Select
-            value={state.selectedInCurrency}
-            onChange={(e: any) =>
-              onUpdateSelect("selectedInCurrency", e.target.value)
-            }
+            value={selectedInCurrency}
+            onChange={(e: any) => onUpdateInSelect(e.target.value)}
           >
-            <MenuItem value="USD">USD</MenuItem>
             {coinInfo &&
               coinInfo.map((coin: ICoinInfo) => (
                 <MenuItem key={coin.price} value={coin.name}>
