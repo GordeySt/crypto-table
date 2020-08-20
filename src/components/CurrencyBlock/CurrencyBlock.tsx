@@ -6,7 +6,7 @@ import MenuItem from "@material-ui/core/MenuItem";
 import FormControl from "@material-ui/core/FormControl";
 import InputLabel from "@material-ui/core/InputLabel";
 import { ITableAndBlock } from "../CryptoTable/types";
-import { ICoinInfo } from "../../App";
+import { ICoinInfo } from "../../redux/types";
 import { setCrypto } from "../../redux/actions/currencyInfo";
 import { useDispatch } from "react-redux";
 import { ICurrenciesChange, TAction, ActionType } from "./types";

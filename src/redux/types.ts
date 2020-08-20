@@ -1,4 +1,4 @@
-import { ICoinInfo } from "../App";
+import * as actions from "./actions/currencyInfo";
 
 export interface IState {
   coins: ICoinInfo[];
@@ -8,14 +8,14 @@ export interface IState {
 export const SET_COINS = "SET_COINS";
 export const SET_CRYPTO = "SET_CRYPTO";
 
-export interface ISetCryptoAction {
-  type: typeof SET_CRYPTO;
-  payload: string;
+export interface ICoinInfo {
+  name: string;
+  fullName: string;
+  imageUrl: string;
+  price: number;
+  volume24hour: number;
 }
 
-export interface ISetCoinsAction {
-  type: typeof SET_COINS;
-  payload: ICoinInfo;
-}
+type inferValueTypes<T> = T extends { [key: string]: infer U } ? U : never;
 
-export type TSetsAction = ISetCryptoAction | ISetCoinsAction;
+export type TActionTypes = ReturnType<inferValueTypes<typeof actions>>;

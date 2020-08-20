@@ -1,20 +1,13 @@
-import {
-  SET_COINS,
-  SET_CRYPTO,
-  ISetCoinsAction,
-  ISetCryptoAction,
-} from "../types";
+import { SET_COINS, SET_CRYPTO } from "../types";
 
-export function setCoins(data: any): ISetCoinsAction {
-  return {
+export const setCoins = (data: any) =>
+  ({
     type: SET_COINS,
     payload: data,
-  };
-}
+  } as const);
 
-export function setCrypto(data: string): ISetCryptoAction {
-  return {
+export const setCrypto = (data: string) =>
+  ({
     type: SET_CRYPTO,
     payload: data,
-  };
-}
+  } as const);

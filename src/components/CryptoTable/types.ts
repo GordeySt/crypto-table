@@ -1,4 +1,4 @@
-import { ICoinInfo } from "../../App";
+import { ICoinInfo } from "../../redux/types";
 
 export interface ITableAndBlock {
   classes: any;

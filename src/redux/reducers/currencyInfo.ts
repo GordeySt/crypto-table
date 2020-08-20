@@ -1,13 +1,13 @@
-import { IState, TSetsAction, SET_COINS, SET_CRYPTO } from "../types";
+import { IState, TActionTypes, SET_COINS, SET_CRYPTO } from "../types";
 
 const initialState: any = {
   coins: [],
-  currencyName: "",
+  currencyName: "BTC",
 };
 
 export function currencyInfoReducer(
   state = initialState,
-  action: TSetsAction
+  action: TActionTypes
 ): IState {
   switch (action.type) {
     case SET_COINS:

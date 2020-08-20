@@ -8,10 +8,13 @@ import TableRow from "@material-ui/core/TableRow";
 import Paper from "@material-ui/core/Paper";
 import { useDispatch } from "react-redux";
 import { setCrypto } from "../../redux/actions/currencyInfo";
-import { ICoinInfo } from "../../App";
-import { ITableAndBlock } from "../CryptoTable/types";
+import { ICoinInfo } from "../../redux/types";
 
-function CryptoTable({ classes, coinInfo }: ITableAndBlock) {
+interface ICryptoTable {
+  classes: any;
+  coinInfo: ICoinInfo[];
+}
+function CryptoTable({ classes, coinInfo }: ICryptoTable) {
   const dispatch = useDispatch();
   const onClickHandle = (name: string) => {
     dispatch(setCrypto(name));
